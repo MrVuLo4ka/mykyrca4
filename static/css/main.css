@@ -1,0 +1,44 @@
+/* HEADER */
+
+.main-content {
+    margin: 370px auto 0; /* Отступы: сверху 50px, автоматические по бокам, без отступа снизу */
+    width: 90%; /* Ширина контейнера */
+    max-width: 1200px; /* Максимальная ширина контейнера */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* Центрирование по горизонтали */
+    height: 100%;
+}
+
+.header_img {
+    height: 42px;
+    width: 42px;
+}
+
+.home_img {
+    height: 42px;
+    width: 42px;
+}
+
+.byd_img {
+    height: 42px;
+    width: 42px;
+}
+
+.sec_img {
+    height: 46px;
+    width: 40px;
+}
+
+.taim_img {
+    height: 42px;
+    width: 42px;
+}
+
+.d-flex.flex-column.bg-body-tertiary {
+  min-height: 100vh; /* Устанавливаем минимальную высоту на 100% высоты окна просмотра */
+}
