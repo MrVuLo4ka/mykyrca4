@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Веб-приложение
+{% endblock %}
+
+{% block content %}
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles3.css') }}">
+<title>Добро пожаловать!</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+<div class="container text-center mt-5">
+    <h2>Привет! Добро пожаловать в веб-приложение с набором будильников.</h2>
+     <h2> Выполнил работу: Сенатов Владислав Игоревич, ст.гр.ИС-35!</h2>
+    <div id="datetime"></div>
+</div>
+    <div class="vremya">
+        <h1>Точное время:</h1>
+        <p id="clock"></p>
+        <p id="date"></p>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script>
+    $(document).ready(function() {
+    function updateClock() {
+        var now = new Date();
+        var h = now.getHours();
+        var m = now.getMinutes();
+        var s = now.getSeconds();
+        $('#clock').text(h + ':' + m + ':' + s);
+
+        var options = { year: 'numeric', month: 'long', day: 'numeric' };
+        var date = now.toLocaleDateString('ru-RU', options);
+        $('#date').text(date);
+    }
+
+    setInterval(updateClock, 1000);
+});
+    </script>
+</h1>
+</body>
+{% endblock %}

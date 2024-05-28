@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Веб-приложение
+{% endblock %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Секундомер</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container text-center mt-5">
+    <font size= "150">Секундомер</font>
+    <p id="timer">00:00.00</p>
+
+    <button onclick="startTimer()">Старт</button>
+    <button onclick="pauseTimer()">Пауза</button>
+    <button onclick="resetTimer()">Сброс</button>
+    </div>
+    <script>
+        var startTime;
+        var timerInterval;
+        var isRunning = false;
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now();
+                timerInterval = setInterval(function() {
+                    var elapsedTime = Date.now() - startTime;
+                    var minutes = Math.floor(elapsedTime / 60000);
+                    var seconds = Math.floor((elapsedTime % 60000) / 1000);
+                    var milliseconds = Math.floor((elapsedTime % 1000) / 10);
+                    document.getElementById('timer').innerHTML =
+                        pad(minutes, 2) + ':' + pad(seconds, 2) + '.' + pad(milliseconds, 2);
+                }, 10); // Обновление каждые 10 миллисекунд
+            }
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerHTML = '00:00.00';
+        }
+
+        function pad(num, size) {
+            var s = "0" + num;
+            return s.substr(s.length - size);
+        }
+    </script>
+</body>
+{% endblock %}

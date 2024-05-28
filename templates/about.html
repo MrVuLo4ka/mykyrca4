@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Веб-приложение
+{% endblock %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Будильники</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles1.css') }}">
+</head>
+
+<body>
+<h1>
+    <div class="container text-center mt-5">
+        <h1>Точное время:</h1>
+        <p id="clock"></p>
+        <p id="date"></p>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#alarmModal">Установить будильник</button>
+    </div>
+</h1>
+    <!-- Modal -->
+    <div class="modal fade" id="alarmModal" tabindex="-1" role="dialog" aria-labelledby="alarmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="alarmModalLabel">Установка будильника!</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Alarm settings form -->
+                    <form id="alarmForm">
+                        <label for="alarmTime"><h4>Установить время:</h4></label>
+                        <input type="time" id="alarmTime">
+                        <label for="alarmSoundFile"><h4>Выбрать собственный звук:</h4></label>
+                        <input type="file" id="alarmSoundFile" accept="audio/*">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><font size= "4">Отмена</font></button>
+                    <button type="button" class="btn btn-primary1" id="startAlarm">Установить</button>
+                </div>
+                <div class="modal-body">
+                    <p id="alarmMessage" class="text-danger"></p>
+                    <audio id="alarmAudio" controls style="display: none;"></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<div class="modal-spisok">
+<font size= "5">Список установленных будильников:</font>
+    <ul id="alarmsList">
+    <script>
+    $(document).ready(function(){
+        var alarmAudio = new Audio();
+        var alarms = JSON.parse(localStorage.getItem('alarms')) || [];
+
+        $('#startAlarm').click(function(){
+            var alarmTime = $('#alarmTime').val();
+            var soundFile = $('#alarmSoundFile')[0].files[0];
+
+            var newAlarm = {
+                time: alarmTime,
+                sound: soundFile,
+                timerId: null // Добавляем поле для хранения идентификатора таймера
+            };
+
+            alarms.push(newAlarm);
+
+            setAlarm(newAlarm);
+
+            saveAlarmsToLocalStorage();
+            $('#alarmModal').modal('hide');
+        });
+
+        function setAlarm(alarm) {
+            var currentTime = new Date();
+            var hours = currentTime.getHours();
+            var minutes = currentTime.getMinutes();
+            var seconds = currentTime.getSeconds();
+            var selectedTime = new Date();
+            selectedTime.setHours(alarm.time.split(':')[0]);
+            selectedTime.setMinutes(alarm.time.split(':')[1]);
+            selectedTime.setSeconds(0);
+
+            var timeDiff = selectedTime - currentTime;
+
+            if (alarm.sound) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    alarmAudio.src = e.target.result;
+                };
+                reader.readAsDataURL(alarm.sound);
+            }
+
+            alarm.timerId = setTimeout(function() {
+                alarmAudio.play();
+                alert('Будильник сработал: ' + alarm.time);
+
+                // Удаляем сработавший будильник из списка
+                var index = alarms.indexOf(alarm);
+                alarms.splice(index, 1);
+                saveAlarmsToLocalStorage();
+                updateClock(); // Обновляем список будильников на странице
+            }, timeDiff);
+        }
+
+        function cancelAlarm(alarm) {
+            clearTimeout(alarm.timerId);
+        }
+
+        function saveAlarmsToLocalStorage() {
+            localStorage.setItem('alarms', JSON.stringify(alarms));
+        }
+
+        function updateClock() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            $('#clock').text(hours + ':' + minutes + ':' + seconds);
+
+            var date = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+            $('#date').text(date);
+
+            var alarmsList = $('#alarmsList');
+            alarmsList.empty();
+            alarms.forEach(function(alarm, index) {
+                alarmsList.append('<li>Будильник ' + (index + 1) + ': ' + alarm.time + '</li>');
+            });
+            saveAlarmsToLocalStorage();
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        $('#clearAlarms').click(function(){
+            alarms.forEach(function(alarm) {
+                cancelAlarm(alarm); // Отменяем все активные будильники
+            });
+
+            alarms = [];
+            saveAlarmsToLocalStorage();
+            $('#alarmsList').empty();
+        });
+
+        $('#alarmsList').on('click', 'li', function(){
+            var index = $(this).index();
+            var removedAlarm = alarms.splice(index, 1)[0];
+
+            cancelAlarm(removedAlarm); // Отменяем таймер удаленного будильника
+
+            saveAlarmsToLocalStorage();
+            $(this).remove();
+        });
+    });
+    </script>
+    </ul>
+</div>
+</body>
+{% endblock %}
